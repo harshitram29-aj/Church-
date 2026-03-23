@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>జీవాధిపతి ప్రార్థన మందిరం – Prayer Request System</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lora:ital,wght@0,400;0,500;1,400&family=Noto+Sans+Telugu:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #e8d5a3;
+    --gold-dark: #9a7a2e;
+    --deep: #1a0f00;
+    --brown: #3d2b1f;
+    --cream: #fdf6e3;
+    --cream-dark: #f5e6c8;
+    --white: #ffffff;
+    --red: #c0392b;
+    --green: #27ae60;
+    --blue: #2980b9;
+    --text: #2c1810;
+    --muted: #7a6050;
+    --border: #d4b896;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Lora', serif;
+    background: var(--deep);
+    min-height: 100vh;
+    color: var(--text);
+  }
+
+  /* ── NAV ── */
+  .nav {
+    background: linear-gradient(135deg, var(--brown) 0%, #2a1a0e 100%);
+    border-bottom: 2px solid var(--gold);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  }
+  .nav-brand {
+    display: flex;
+    flex-direction: column;
+    padding: 0.8rem 0;
+  }
+  .nav-brand .tel { font-family: 'Noto Sans Telugu', sans-serif; font-size: 1rem; color: var(--gold-light); font-weight: 600; }
+  .nav-brand .eng { font-size: 0.7rem; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; }
+  .nav-cross { font-size: 1.5rem; color: var(--gold); margin-right: 0.5rem; }
+  .nav-tabs { margin-left: auto; display: flex; gap: 0.5rem; }
+  .nav-tab {
+    padding: 0.5rem 1.2rem;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Lora', serif;
+    font-size: 0.85rem;
+    transition: all 0.3s;
+    background: transparent;
+    color: var(--gold-light);
+  }
+  .nav-tab:hover { border-color: var(--gold); color: var(--gold); }
+  .nav-tab.active { background: var(--gold); color: var(--deep); font-weight: 600; }
+
+  /* ── PAGES ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ══════════════════ FORM PAGE ══════════════════ */
+  .form-hero {
+    background: linear-gradient(180deg, var(--brown) 0%, var(--deep) 100%);
+    text-align: center;
+    padding: 3rem 1rem 2rem;
+    border-bottom: 1px solid var(--gold-dark);
+  }
+  .form-hero .cross-big { font-size: 3rem; display: block; margin-bottom: 0.5rem; }
+  .form-hero h1 { font-family: 'Noto Sans Telugu', sans-serif; font-size: clamp(1.6rem, 4vw, 2.5rem); color: var(--gold); font-weight: 700; line-height: 1.3; }
+  .form-hero h2 { font-family: 'Playfair Display', serif; font-size: clamp(0.9rem, 2vw, 1.1rem); color: var(--gold-light); letter-spacing: 3px; text-transform: uppercase; margin-top: 0.4rem; }
+  .form-hero .verse { font-style: italic; color: var(--muted); font-size: 0.8rem; margin-top: 0.8rem; max-width: 500px; margin-left: auto; margin-right: auto; }
+
+  .form-wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 2rem 1rem 4rem;
+  }
+
+  .form-section {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+  .section-header {
+    background: linear-gradient(90deg, var(--brown), #4a3020);
+    padding: 0.8rem 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .section-header h3 { color: var(--gold); font-family: 'Playfair Display', serif; font-size: 1rem; letter-spacing: 1px; }
+  .section-header .tel { font-family: 'Noto Sans Telugu', sans-serif; font-size: 0.85rem; color: var(--gold-light); margin-left: auto; }
+
+  .section-body { padding: 1.2rem; }
+
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  .field-row.single { grid-template-columns: 1fr; }
+  .field-row.triple { grid-template-columns: 1fr 1fr 1fr; }
+  @media(max-width: 580px) {
+    .field-row, .field-row.triple { grid-template-columns: 1fr; }
+  }
+
+  .field label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--brown);
+    margin-bottom: 0.3rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .field label .tel-label { font-family: 'Noto Sans Telugu', sans-serif; font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--muted); font-size: 0.8rem; }
+
+  .field input, .field select, .field textarea {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    font-family: 'Lora', serif;
+    font-size: 0.9rem;
+    background: var(--white);
+    color: var(--text);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(201,168,76,0.15);
+  }
+  .field textarea { resize: vertical; min-height: 80px; }
+
+  .prayer-textarea { min-height: 120px !important; }
+
+  .checkbox-field {
+    display: flex; align-items: flex-start; gap: 0.6rem;
+    background: var(--cream-dark); padding: 0.8rem; border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+  .checkbox-field input[type=checkbox] { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--gold-dark); flex-shrink: 0; }
+  .checkbox-field label { font-size: 0.85rem; color: var(--brown); cursor: pointer; font-weight: 500; }
+
+  .submit-btn {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+    color: var(--deep);
+    border: none;
+    border-radius: 6px;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(201,168,76,0.3);
+  }
+  .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(201,168,76,0.5); }
+  .submit-btn:active { transform: translateY(0); }
+
+  .success-msg {
+    display: none;
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 1rem;
+    box-shadow: 0 4px 15px rgba(39,174,96,0.3);
+  }
+  .success-msg .tel { font-family: 'Noto Sans Telugu', sans-serif; display: block; margin-top: 0.3rem; font-size: 0.9rem; }
+
+  /* ══════════════════ DASHBOARD PAGE ══════════════════ */
+  .dash-wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem 4rem;
+  }
+
+  .dash-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .dash-header h2 { font-family: 'Playfair Display', serif; color: var(--gold); font-size: 1.4rem; }
+  .dash-header .pastor-badge {
+    background: var(--gold);
+    color: var(--deep);
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .stat-card {
+    background: linear-gradient(135deg, var(--brown), #4a2c1a);
+    border: 1px solid var(--gold-dark);
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+  .stat-card .num { font-size: 2rem; font-weight: 700; color: var(--gold); font-family: 'Playfair Display', serif; }
+  .stat-card .lbl { font-size: 0.75rem; color: var(--gold-light); text-transform: uppercase; letter-spacing: 1px; margin-top: 0.2rem; }
+
+  /* BIRTHDAY ALERT */
+  .birthday-alert {
+    background: linear-gradient(135deg, #8B0000, #c0392b);
+    border: 1px solid #e74c3c;
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    margin-bottom: 1.5rem;
+    display: none;
+    box-shadow: 0 4px 20px rgba(192,57,43,0.4);
+  }
+  .birthday-alert.show { display: block; }
+  .birthday-alert h4 { color: #ffd5d5; font-size: 0.9rem; font-weight: 700; margin-bottom: 0.5rem; letter-spacing: 1px; }
+  .birthday-people { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .bday-chip {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+
+  /* FILTERS */
+  .filter-bar {
+    background: linear-gradient(135deg, var(--brown), #3a1f10);
+    border: 1px solid var(--gold-dark);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    align-items: center;
+  }
+  .filter-bar input, .filter-bar select {
+    padding: 0.5rem 0.8rem;
+    border: 1px solid var(--gold-dark);
+    border-radius: 4px;
+    background: rgba(255,255,255,0.08);
+    color: var(--gold-light);
+    font-family: 'Lora', serif;
+    font-size: 0.85rem;
+    flex: 1;
+    min-width: 160px;
+  }
+  .filter-bar input::placeholder { color: var(--muted); }
+  .filter-bar input:focus, .filter-bar select:focus { outline: none; border-color: var(--gold); background: rgba(255,255,255,0.12); }
+  .filter-bar select option { background: var(--brown); color: var(--cream); }
+  .filter-btn {
+    padding: 0.5rem 1rem;
+    background: var(--gold);
+    color: var(--deep);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+  .export-btn {
+    padding: 0.5rem 1rem;
+    background: transparent;
+    color: var(--gold);
+    border: 1px solid var(--gold);
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .export-btn:hover { background: var(--gold); color: var(--deep); }
+
+  /* TABLE */
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--cream);
+    font-size: 0.82rem;
+  }
+  thead tr { background: linear-gradient(90deg, var(--brown), #4a2c1a); }
+  thead th {
+    padding: 0.9rem 0.8rem;
+    text-align: left;
+    color: var(--gold);
+    font-family: 'Playfair Display', serif;
+    font-weight: 600;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    border-bottom: 2px solid var(--gold-dark);
+  }
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  tbody tr:hover { background: var(--cream-dark); }
+  tbody tr.private { background: #fff8f0; }
+  tbody td {
+    padding: 0.75rem 0.8rem;
+    color: var(--text);
+    vertical-align: top;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  tbody td.wrap { white-space: normal; }
+  .badge {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .badge-private { background: #fee8e8; color: #c0392b; }
+  .badge-public { background: #e8f8ee; color: #27ae60; }
+  .badge-bday { background: #fff3cd; color: #856404; }
+  .badge-anni { background: #e8eeff; color: #2463c6; }
+
+  .row-action {
+    background: transparent; border: none; cursor: pointer;
+    color: var(--gold-dark); font-size: 1rem; padding: 0.2rem 0.4rem;
+    border-radius: 3px; transition: all 0.2s;
+  }
+  .row-action:hover { background: var(--gold-dark); color: white; }
+  .del-btn { color: var(--red); }
+  .del-btn:hover { background: var(--red); color: white; }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: var(--muted);
+  }
+  .empty-state .icon { font-size: 3rem; display: block; margin-bottom: 0.5rem; }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--cream);
+    border: 2px solid var(--gold);
+    border-radius: 12px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  }
+  .modal-head {
+    background: linear-gradient(90deg, var(--brown), #4a2c1a);
+    padding: 1rem 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 10px 10px 0 0;
+  }
+  .modal-head h3 { color: var(--gold); font-family: 'Playfair Display', serif; }
+  .modal-close { background: transparent; border: none; color: var(--gold-light); font-size: 1.4rem; cursor: pointer; line-height: 1; }
+  .modal-body { padding: 1.5rem; }
+  .detail-row { display: flex; gap: 0.5rem; margin-bottom: 0.8rem; flex-wrap: wrap; }
+  .detail-label { font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; min-width: 110px; }
+  .detail-value { font-size: 0.9rem; color: var(--text); flex: 1; }
+  .prayer-text-box {
+    background: var(--cream-dark);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.8rem;
+    font-style: italic;
+    color: var(--brown);
+    line-height: 1.7;
+    margin-top: 0.5rem;
+  }
+
+  /* UPCOMING BIRTHDAYS PANEL */
+  .upcoming-panel {
+    background: linear-gradient(135deg, #1a2a1a, #0f1f0f);
+    border: 1px solid #3a6b3a;
+    border-radius: 8px;
+    padding: 1.2rem;
+    margin-bottom: 1.5rem;
+  }
+  .upcoming-panel h4 { color: #a8d8a8; font-family: 'Playfair Display', serif; margin-bottom: 0.8rem; font-size: 1rem; }
+  .upcoming-list { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .upcoming-chip {
+    background: rgba(168,216,168,0.1);
+    border: 1px solid #3a6b3a;
+    color: #c8e6c8;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+  .upcoming-chip .days { background: #27ae60; color: white; padding: 0.1rem 0.4rem; border-radius: 10px; font-size: 0.7rem; font-weight: 700; }
+
+  /* RESPONSIVE */
+  @media(max-width:600px) {
+    .nav-tabs .nav-tab span.full { display: none; }
+    .dash-header { flex-direction: column; align-items: flex-start; }
+    thead th:nth-child(n+5) { display: none; }
+    tbody td:nth-child(n+5) { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <span class="nav-cross">✝</span>
+  <div class="nav-brand">
+    <span class="tel">జీవాధిపతి ప్రార్థన మందిరం</span>
+    <span class="eng">The Prince of Life Ministries</span>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" id="form-tab" onclick="showPage('form-page', this)">🙏 <span class="full">Prayer Request</span><span class="short" style="display:none">Form</span></button>
+    <button class="nav-tab" id="dash-tab" style="display:none" onclick="showPage('dash-page', this)">📋 <span class="full">Pastor's Dashboard</span><span class="short" style="display:none">Dashboard</span></button>
+  </div>
+</nav>
+
+<!-- ══════════ FORM PAGE ══════════ -->
+<div id="form-page" class="page active">
+  <div class="form-hero">
+    <span class="cross-big">✝</span>
+    <h1>జీవాధిపతి ప్రార్థన మందిరం</h1>
+    <h2>Prayer Request Form</h2>
+    <p class="verse">ప్రభువు నామమునని బట్టి ప్రార్థన చేయు వారందరు రక్షణ పొందుదురు — అపో 2:21</p>
+  </div>
+
+  <div class="form-wrap">
+    <!-- PERSONAL INFO -->
+    <div class="form-section">
+      <div class="section-header">
+        <h3>Personal Information</h3>
+        <span class="tel">వ్యక్తిగత వివరాలు</span>
+      </div>
+      <div class="section-body">
+        <div class="field-row single">
+          <div class="field">
+            <label>Full Name <span class="tel-label">/ పేరు</span></label>
+            <input type="text" id="f-name" placeholder="Your full name" required>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Date of Birth <span class="tel-label">/ పుట్టిన తేది</span></label>
+            <input type="date" id="f-dob">
+          </div>
+          <div class="field">
+            <label>Date of Marriage <span class="tel-label">/ వివాహ తేది</span></label>
+            <input type="date" id="f-dom">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Mobile No <span class="tel-label">/ మొబైల్ నెం</span></label>
+            <input type="tel" id="f-mobile" placeholder="Mobile number">
+          </div>
+          <div class="field">
+            <label>Email <span class="tel-label">/ ఈమెయిల్</span></label>
+            <input type="email" id="f-email" placeholder="Email address">
+          </div>
+        </div>
+        <div class="field-row single">
+          <div class="field">
+            <label>Address <span class="tel-label">/ చిరునామా</span></label>
+            <textarea id="f-address" rows="2" placeholder="Full address"></textarea>
+          </div>
+        </div>
+        <div class="field-row single">
+          <div class="field">
+            <label>PIN Code <span class="tel-label">/ పిన్ కోడ్</span></label>
+            <input type="text" id="f-pin" placeholder="PIN Code" maxlength="6" style="max-width:150px">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FAMILY DETAILS -->
+    <div class="form-section">
+      <div class="section-header">
+        <h3>Family Details</h3>
+        <span class="tel">కుటుంబ వివరాలు</span>
+      </div>
+      <div class="section-body">
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:1rem;">Spouse & Children (optional / ఐచ్ఛికం)</p>
+
+        <!-- Spouse -->
+        <div style="background:var(--cream-dark);padding:0.8rem;border-radius:6px;margin-bottom:1rem;border:1px solid var(--border);">
+          <div style="font-size:0.75rem;font-weight:700;color:var(--brown);letter-spacing:1px;margin-bottom:0.6rem;">SPOUSE <span style="font-family:'Noto Sans Telugu';font-weight:400;letter-spacing:0;text-transform:none;color:var(--muted)">/ భర్త భార్య</span></div>
+          <div class="field-row">
+            <div class="field"><label>Name<span class="tel-label"> / పేరు</span></label><input type="text" id="f-sp-name" placeholder="Spouse name"></div>
+            <div class="field"><label>Date of Birth<span class="tel-label"> / పుట్టిన తేది</span></label><input type="date" id="f-sp-dob"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Mobile</label><input type="tel" id="f-sp-mob" placeholder="Mobile"></div>
+            <div class="field"><label>Email</label><input type="email" id="f-sp-email" placeholder="Email"></div>
+          </div>
+        </div>
+
+        <!-- Child 1 -->
+        <div style="background:var(--cream-dark);padding:0.8rem;border-radius:6px;margin-bottom:1rem;border:1px solid var(--border);">
+          <div style="font-size:0.75rem;font-weight:700;color:var(--brown);letter-spacing:1px;margin-bottom:0.6rem;">CHILD 1 <span style="font-family:'Noto Sans Telugu';font-weight:400;letter-spacing:0;text-transform:none;color:var(--muted)">/ పిల్లలు 1</span></div>
+          <div class="field-row">
+            <div class="field"><label>Name</label><input type="text" id="f-c1-name" placeholder="Child 1 name"></div>
+            <div class="field"><label>Date of Birth</label><input type="date" id="f-c1-dob"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Mobile</label><input type="tel" id="f-c1-mob" placeholder="Mobile"></div>
+            <div class="field"><label>Email</label><input type="email" id="f-c1-email" placeholder="Email"></div>
+          </div>
+        </div>
+
+        <!-- Child 2 -->
+        <div style="background:var(--cream-dark);padding:0.8rem;border-radius:6px;margin-bottom:1rem;border:1px solid var(--border);">
+          <div style="font-size:0.75rem;font-weight:700;color:var(--brown);letter-spacing:1px;margin-bottom:0.6rem;">CHILD 2 <span style="font-family:'Noto Sans Telugu';font-weight:400;letter-spacing:0;text-transform:none;color:var(--muted)">/ పిల్లలు 2</span></div>
+          <div class="field-row">
+            <div class="field"><label>Name</label><input type="text" id="f-c2-name" placeholder="Child 2 name"></div>
+            <div class="field"><label>Date of Birth</label><input type="date" id="f-c2-dob"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Mobile</label><input type="tel" id="f-c2-mob" placeholder="Mobile"></div>
+            <div class="field"><label>Email</label><input type="email" id="f-c2-email" placeholder="Email"></div>
+          </div>
+        </div>
+
+        <!-- Child 3 -->
+        <div style="background:var(--cream-dark);padding:0.8rem;border-radius:6px;border:1px solid var(--border);">
+          <div style="font-size:0.75rem;font-weight:700;color:var(--brown);letter-spacing:1px;margin-bottom:0.6rem;">CHILD 3 <span style="font-family:'Noto Sans Telugu';font-weight:400;letter-spacing:0;text-transform:none;color:var(--muted)">/ పిల్లలు 3</span></div>
+          <div class="field-row">
+            <div class="field"><label>Name</label><input type="text" id="f-c3-name" placeholder="Child 3 name"></div>
+            <div class="field"><label>Date of Birth</label><input type="date" id="f-c3-dob"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Mobile</label><input type="tel" id="f-c3-mob" placeholder="Mobile"></div>
+            <div class="field"><label>Email</label><input type="email" id="f-c3-email" placeholder="Email"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRAYER REQUEST -->
+    <div class="form-section">
+      <div class="section-header">
+        <h3>Prayer Request</h3>
+        <span class="tel">ప్రార్థన విన్నపము</span>
+      </div>
+      <div class="section-body">
+        <div class="field-row single">
+          <div class="field">
+            <label>Prayer Request <span class="tel-label">/ ప్రార్థన విన్నపము</span></label>
+            <textarea class="prayer-textarea" id="f-prayer" placeholder="నేను నా కుటుంబ ఆత్మీయంగా దేవుని నామానికి మహిమా కరముగా ఉండాలని ప్రార్థన..."></textarea>
+          </div>
+        </div>
+        <div class="checkbox-field" style="margin-top:0.5rem;">
+          <input type="checkbox" id="f-private">
+          <label for="f-private">
+            [ ] Please keep this request private / <span style="font-family:'Noto Sans Telugu'">దయచేసి ఈ అభ్యర్థనలను రహస్యంగా ఉంచండి</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- SERVICE TIMES INFO -->
+    <div class="form-section">
+      <div class="section-header">
+        <h3>Service Times</h3>
+        <span class="tel">సేవా సమయాలు</span>
+      </div>
+      <div class="section-body">
+        <ul style="list-style:none;display:grid;gap:0.5rem;">
+          <li style="display:flex;gap:0.5rem;align-items:flex-start;"><span style="color:var(--gold-dark);font-size:1rem;">✦</span><span><strong>ఆదివారం ఆరాధన:</strong> ఉ॥ 10 గం.ల సుండి 12:30 ని॥ల వరకు</span></li>
+          <li style="display:flex;gap:0.5rem;align-items:flex-start;"><span style="color:var(--gold-dark);font-size:1rem;">✦</span><span><strong>ఆదివారం సండేస్కూల్:</strong> ఉ॥ 8:30 ని॥ల సుండి 9:30 ని॥ల వరకు</span></li>
+          <li style="display:flex;gap:0.5rem;align-items:flex-start;"><span style="color:var(--gold-dark);font-size:1rem;">✦</span><span><strong>భుదవారం ఆసక్తి ప్రార్థన:</strong> రా॥ 7:30 ని॥ల సుండి రా॥ 8:30 వరకు</span></li>
+          <li style="display:flex;gap:0.5rem;align-items:flex-start;"><span style="color:var(--gold-dark);font-size:1rem;">✦</span><span><strong>శుక్రవారం ఆరాధన:</strong> రా॥ 7:00 గం.ల సుండి 9:30 ని॥ ల వరకు</span></li>
+          <li style="display:flex;gap:0.5rem;align-items:flex-start;"><span style="color:var(--gold-dark);font-size:1rem;">✦</span><span><strong>ఆల్ నైట్ ఆరాధన:</strong> Please contact</span></li>
+          <li style="display:flex;gap:0.5rem;align-items:flex-start;"><span style="color:var(--gold-dark);font-size:1rem;">✦</span><span><strong>ప్రతి నెల మొదటి ఆదివారం</strong> ప్రభువు బల్ల ఆరాధన ఇవ్వబడును.</span></li>
+        </ul>
+        <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);font-size:0.85rem;color:var(--muted);">
+          <strong>పాస్టర్ జాన్ బాబు గారు</strong> · Mobile: 9030913852<br>
+          సీత రామ నగర్, కళ్యాణ మండపం బ్యాక్ సైడ్, గుడారిగుంట, కాకినాడ – 533003
+        </div>
+      </div>
+    </div>
+
+    <button class="submit-btn" onclick="submitForm()">✝ Submit Prayer Request / ప్రార్థన విన్నపము సమర్పించండి</button>
+    <div class="success-msg" id="success-msg">
+      🙏 Your prayer request has been submitted!<br>
+      <span class="tel">మీ ప్రార్థన విన్నపము సమర్పించబడింది. దేవుడు మీకు ఆశీర్వాదం చేయుగాక!</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ DASHBOARD PAGE ══════════ -->
+<div id="dash-page" class="page">
+  <div class="dash-wrap">
+    <div class="dash-header">
+      <h2>✝ Pastor's Dashboard</h2>
+      <span class="pastor-badge">పాస్టర్ జాన్ బాబు</span>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-row" id="stats-row">
+      <div class="stat-card"><div class="num" id="stat-total">0</div><div class="lbl">Total Members</div></div>
+      <div class="stat-card"><div class="num" id="stat-today-bday">0</div><div class="lbl">Birthdays Today 🎂</div></div>
+      <div class="stat-card"><div class="num" id="stat-week-bday">0</div><div class="lbl">Birthdays This Week</div></div>
+      <div class="stat-card"><div class="num" id="stat-prayers">0</div><div class="lbl">Prayer Requests</div></div>
+      <div class="stat-card"><div class="num" id="stat-private">0</div><div class="lbl">Private Requests</div></div>
+    </div>
+
+    <!-- BIRTHDAY ALERT -->
+    <div class="birthday-alert" id="bday-alert">
+      <h4>🎂 TODAY'S BIRTHDAYS & ANNIVERSARIES</h4>
+      <div class="birthday-people" id="bday-people"></div>
+    </div>
+
+    <!-- UPCOMING BIRTHDAYS -->
+    <div class="upcoming-panel" id="upcoming-panel" style="display:none">
+      <h4>📅 Upcoming Birthdays (Next 30 Days)</h4>
+      <div class="upcoming-list" id="upcoming-list"></div>
+    </div>
+
+    <!-- FILTER BAR -->
+    <div class="filter-bar">
+      <input type="text" id="search-input" placeholder="🔍 Search name, mobile..." oninput="renderTable()">
+      <select id="filter-privacy" onchange="renderTable()">
+        <option value="">All Requests</option>
+        <option value="public">Public Only</option>
+        <option value="private">Private Only</option>
+      </select>
+      <select id="filter-bday-month" onchange="renderTable()">
+        <option value="">All Months</option>
+        <option value="1">January</option><option value="2">February</option>
+        <option value="3">March</option><option value="4">April</option>
+        <option value="5">May</option><option value="6">June</option>
+        <option value="7">July</option><option value="8">August</option>
+        <option value="9">September</option><option value="10">October</option>
+        <option value="11">November</option><option value="12">December</option>
+      </select>
+      <button class="filter-btn" onclick="clearFilters()">✕ Clear</button>
+      <button class="export-btn" onclick="exportCSV()">⬇ Export CSV</button>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-wrap">
+      <table id="main-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name / పేరు</th>
+            <th>Mobile</th>
+            <th>DOB 🎂</th>
+            <th>Anniversary 💍</th>
+            <th>Prayer Request</th>
+            <th>Privacy</th>
+            <th>Date Submitted</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="table-body">
+          <tr><td colspan="9"><div class="empty-state"><span class="icon">🙏</span>No prayer requests yet.<br>Members can submit via the Prayer Request form.</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="detail-modal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modal-title">Member Details</h3>
+      <button class="modal-close" onclick="document.getElementById('detail-modal').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+// ── DATA STORAGE (localStorage) ──
+const KEY = 'jpm_prayers';
+
+function getData() {
+  try { return JSON.parse(localStorage.getItem(KEY) || '[]'); }
+  catch(e) { return []; }
+}
+function saveData(d) { localStorage.setItem(KEY, JSON.stringify(d)); }
+
+// ── GOOGLE SHEETS ENDPOINT ──
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbw3xILOxHlmn-gdc1Exi1lFv4kwFf0YLmgYjs30XOYV2XRYltKu0i4p0XkFCz-qGawG/exec';
+
+// ── FORM SUBMIT ──
+async function submitForm() {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { alert('Please enter your name / దయచేసి మీ పేరు నమోదు చేయండి'); return; }
+
+  const btn = document.querySelector('.submit-btn');
+  btn.textContent = '⏳ Submitting...';
+  btn.disabled = true;
+
+  const entry = {
+    id: Date.now(),
+    submittedAt: new Date().toLocaleString('en-IN'),
+    name,
+    dob: document.getElementById('f-dob').value,
+    dom: document.getElementById('f-dom').value,
+    mobile: document.getElementById('f-mobile').value.trim(),
+    email: document.getElementById('f-email').value.trim(),
+    address: document.getElementById('f-address').value.trim(),
+    pin: document.getElementById('f-pin').value.trim(),
+    spouseName: document.getElementById('f-sp-name').value.trim(),
+    spouseDob: document.getElementById('f-sp-dob').value,
+    spouseMobile: document.getElementById('f-sp-mob').value.trim(),
+    child1Name: document.getElementById('f-c1-name').value.trim(),
+    child1Dob: document.getElementById('f-c1-dob').value,
+    child1Mobile: document.getElementById('f-c1-mob').value.trim(),
+    child2Name: document.getElementById('f-c2-name').value.trim(),
+    child2Dob: document.getElementById('f-c2-dob').value,
+    child2Mobile: document.getElementById('f-c2-mob').value.trim(),
+    child3Name: document.getElementById('f-c3-name').value.trim(),
+    child3Dob: document.getElementById('f-c3-dob').value,
+    child3Mobile: document.getElementById('f-c3-mob').value.trim(),
+    prayer: document.getElementById('f-prayer').value.trim(),
+    isPrivate: document.getElementById('f-private').checked ? 'Yes' : 'No',
+  };
+
+  // Also save locally for the dashboard
+  const localEntry = {
+    id: entry.id, submittedAt: new Date().toISOString(), name: entry.name,
+    dob: entry.dob, dom: entry.dom, mobile: entry.mobile, email: entry.email,
+    address: entry.address, pin: entry.pin,
+    spouse: { name: entry.spouseName, dob: entry.spouseDob, mobile: entry.spouseMobile },
+    children: [
+      { name: entry.child1Name, dob: entry.child1Dob, mobile: entry.child1Mobile },
+      { name: entry.child2Name, dob: entry.child2Dob, mobile: entry.child2Mobile },
+      { name: entry.child3Name, dob: entry.child3Dob, mobile: entry.child3Mobile },
+    ],
+    prayer: document.getElementById('f-prayer').value.trim(),
+    isPrivate: entry.isPrivate === 'Yes',
+  };
+  const data = getData();
+  data.push(localEntry);
+  saveData(data);
+
+  // Send to Google Sheets
+  try {
+    await fetch(SHEET_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(entry)
+    });
+  } catch(err) {
+    console.warn('Sheet sync error:', err);
+  }
+
+  // Show success
+  btn.disabled = false;
+  document.getElementById('success-msg').style.display = 'block';
+  btn.textContent = '✅ Submitted!';
+  setTimeout(() => {
+    document.getElementById('success-msg').style.display = 'none';
+    btn.textContent = '✝ Submit Prayer Request / ప్రార్థన విన్నపము సమర్పించండి';
+    ['f-name','f-dob','f-dom','f-mobile','f-email','f-address','f-pin',
+     'f-sp-name','f-sp-dob','f-sp-mob','f-sp-email',
+     'f-c1-name','f-c1-dob','f-c1-mob','f-c1-email',
+     'f-c2-name','f-c2-dob','f-c2-mob','f-c2-email',
+     'f-c3-name','f-c3-dob','f-c3-mob','f-c3-email',
+     'f-prayer'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+    document.getElementById('f-private').checked = false;
+  }, 3000);
+}
+
+// ── PAGE NAV ──
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'dash-page') refreshDashboard();
+}
+
+// ── DASHBOARD ──
+function refreshDashboard() {
+  const data = getData();
+  const today = new Date();
+  const todayMD = `${today.getMonth()+1}-${today.getDate()}`;
+
+  // collect all people with DOBs (member + spouse + children)
+  const allPeople = [];
+  data.forEach(e => {
+    if (e.dob) allPeople.push({ name: e.name, dob: e.dob, type: 'Birthday', member: e.name });
+    if (e.dom) allPeople.push({ name: e.name, dob: e.dom, type: 'Anniversary', member: e.name });
+    if (e.spouse?.name && e.spouse?.dob) allPeople.push({ name: e.spouse.name, dob: e.spouse.dob, type: 'Birthday', member: e.name });
+    e.children?.forEach(c => { if(c.name && c.dob) allPeople.push({ name: c.name, dob: c.dob, type: 'Birthday', member: e.name }); });
+  });
+
+  // today birthdays
+  const todayBdays = allPeople.filter(p => {
+    if (!p.dob) return false;
+    const d = new Date(p.dob);
+    return (d.getMonth()+1 === today.getMonth()+1) && (d.getDate() === today.getDate());
+  });
+
+  // week birthdays (next 7 days)
+  const weekBdays = allPeople.filter(p => {
+    if (!p.dob) return false;
+    const d = new Date(p.dob);
+    const thisYear = new Date(today.getFullYear(), d.getMonth(), d.getDate());
+    const diff = Math.ceil((thisYear - today) / 86400000);
+    return diff >= 0 && diff <= 7;
+  });
+
+  // 30 day upcoming
+  const upcoming30 = allPeople.filter(p => {
+    if (!p.dob) return false;
+    const d = new Date(p.dob);
+    const thisYear = new Date(today.getFullYear(), d.getMonth(), d.getDate());
+    const diff = Math.ceil((thisYear - today) / 86400000);
+    return diff > 0 && diff <= 30;
+  }).sort((a,b) => {
+    const da = new Date(a.dob), db = new Date(b.dob);
+    const ya = new Date(today.getFullYear(), da.getMonth(), da.getDate());
+    const yb = new Date(today.getFullYear(), db.getMonth(), db.getDate());
+    return ya - yb;
+  });
+
+  // stats
+  document.getElementById('stat-total').textContent = data.length;
+  document.getElementById('stat-today-bday').textContent = todayBdays.length;
+  document.getElementById('stat-week-bday').textContent = weekBdays.length;
+  document.getElementById('stat-prayers').textContent = data.filter(e => e.prayer).length;
+  document.getElementById('stat-private').textContent = data.filter(e => e.isPrivate).length;
+
+  // birthday alert
+  const alertEl = document.getElementById('bday-alert');
+  const peopleEl = document.getElementById('bday-people');
+  if (todayBdays.length > 0) {
+    alertEl.classList.add('show');
+    peopleEl.innerHTML = todayBdays.map(p =>
+      `<div class="bday-chip">${p.type === 'Anniversary' ? '💍' : '🎂'} <strong>${p.name}</strong> (${p.type}) — from ${p.member}'s family</div>`
+    ).join('');
+  } else {
+    alertEl.classList.remove('show');
+  }
+
+  // upcoming panel
+  const upcomingEl = document.getElementById('upcoming-panel');
+  const upcomingList = document.getElementById('upcoming-list');
+  if (upcoming30.length > 0) {
+    upcomingEl.style.display = 'block';
+    upcomingList.innerHTML = upcoming30.map(p => {
+      const d = new Date(p.dob);
+      const thisYear = new Date(today.getFullYear(), d.getMonth(), d.getDate());
+      const diff = Math.ceil((thisYear - today) / 86400000);
+      const dateStr = thisYear.toLocaleDateString('en-IN', { day:'numeric', month:'short' });
+      return `<div class="upcoming-chip">${p.type==='Anniversary'?'💍':'🎂'} ${p.name} <span class="days">${diff}d</span> <span style="opacity:0.6;font-size:0.7rem">${dateStr}</span></div>`;
+    }).join('');
+  } else {
+    upcomingEl.style.display = 'none';
+  }
+
+  renderTable();
+}
+
+function renderTable() {
+  const data = getData();
+  const search = document.getElementById('search-input').value.toLowerCase();
+  const privacy = document.getElementById('filter-privacy').value;
+  const bdayMonth = document.getElementById('filter-bday-month').value;
+
+  let filtered = data.filter(e => {
+    if (search && !e.name.toLowerCase().includes(search) && !e.mobile.includes(search)) return false;
+    if (privacy === 'public' && e.isPrivate) return false;
+    if (privacy === 'private' && !e.isPrivate) return false;
+    if (bdayMonth && e.dob) {
+      const m = new Date(e.dob).getMonth() + 1;
+      if (String(m) !== bdayMonth) return false;
+    }
+    return true;
+  });
+
+  const tbody = document.getElementById('table-body');
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><span class="icon">🙏</span>No records found.</div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map((e, i) => {
+    const today = new Date();
+    const isBdayToday = e.dob && new Date(e.dob).getMonth()+1 === today.getMonth()+1 && new Date(e.dob).getDate() === today.getDate();
+    const isAnniToday = e.dom && new Date(e.dom).getMonth()+1 === today.getMonth()+1 && new Date(e.dom).getDate() === today.getDate();
+    const dobStr = e.dob ? new Date(e.dob).toLocaleDateString('en-IN') : '—';
+    const domStr = e.dom ? new Date(e.dom).toLocaleDateString('en-IN') : '—';
+    const submittedStr = new Date(e.submittedAt).toLocaleDateString('en-IN');
+    const prayer = e.isPrivate ? '<em style="color:var(--muted)">Private</em>' : (e.prayer ? e.prayer.substring(0,60) + (e.prayer.length>60?'…':'') : '—');
+
+    return `<tr class="${e.isPrivate?'private':''}">
+      <td>${i+1}</td>
+      <td><strong>${e.name}</strong>${isBdayToday ? ' <span class="badge badge-bday">🎂 Today</span>' : ''}</td>
+      <td>${e.mobile || '—'}</td>
+      <td>${dobStr}</td>
+      <td>${domStr}${isAnniToday ? ' <span class="badge badge-anni">💍</span>' : ''}</td>
+      <td class="wrap" style="max-width:180px;font-size:0.8rem;color:var(--muted)">${prayer}</td>
+      <td><span class="badge ${e.isPrivate?'badge-private':'badge-public'}">${e.isPrivate?'🔒 Private':'🌐 Public'}</span></td>
+      <td>${submittedStr}</td>
+      <td>
+        <button class="row-action" onclick="viewDetail(${e.id})" title="View">👁</button>
+        <button class="row-action del-btn" onclick="deleteEntry(${e.id})" title="Delete">🗑</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function clearFilters() {
+  document.getElementById('search-input').value = '';
+  document.getElementById('filter-privacy').value = '';
+  document.getElementById('filter-bday-month').value = '';
+  renderTable();
+}
+
+function deleteEntry(id) {
+  if (!confirm('Delete this prayer request?')) return;
+  saveData(getData().filter(e => e.id !== id));
+  refreshDashboard();
+}
+
+function viewDetail(id) {
+  const e = getData().find(x => x.id === id);
+  if (!e) return;
+  document.getElementById('modal-title').textContent = `✝ ${e.name}`;
+  const rows = [
+    ['Name', e.name],
+    ['Mobile', e.mobile || '—'],
+    ['Email', e.email || '—'],
+    ['Date of Birth', e.dob ? new Date(e.dob).toLocaleDateString('en-IN') : '—'],
+    ['Anniversary', e.dom ? new Date(e.dom).toLocaleDateString('en-IN') : '—'],
+    ['Address', e.address || '—'],
+    ['PIN', e.pin || '—'],
+    ['Submitted', new Date(e.submittedAt).toLocaleString('en-IN')],
+    ['Privacy', e.isPrivate ? '🔒 Private' : '🌐 Public'],
+  ];
+  let html = rows.map(([l,v]) => `<div class="detail-row"><span class="detail-label">${l}</span><span class="detail-value">${v}</span></div>`).join('');
+
+  if (e.spouse?.name) {
+    html += `<div style="margin:0.8rem 0;font-size:0.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;border-top:1px solid var(--border);padding-top:0.8rem">Spouse</div>`;
+    html += `<div class="detail-row"><span class="detail-label">Name</span><span class="detail-value">${e.spouse.name}</span></div>`;
+    if (e.spouse.dob) html += `<div class="detail-row"><span class="detail-label">DOB</span><span class="detail-value">${new Date(e.spouse.dob).toLocaleDateString('en-IN')}</span></div>`;
+    if (e.spouse.mobile) html += `<div class="detail-row"><span class="detail-label">Mobile</span><span class="detail-value">${e.spouse.mobile}</span></div>`;
+  }
+
+  e.children?.forEach((c, i) => {
+    if (!c.name) return;
+    html += `<div style="margin:0.8rem 0;font-size:0.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;border-top:1px solid var(--border);padding-top:0.8rem">Child ${i+1}</div>`;
+    html += `<div class="detail-row"><span class="detail-label">Name</span><span class="detail-value">${c.name}</span></div>`;
+    if (c.dob) html += `<div class="detail-row"><span class="detail-label">DOB</span><span class="detail-value">${new Date(c.dob).toLocaleDateString('en-IN')}</span></div>`;
+  });
+
+  if (e.prayer) {
+    html += `<div style="margin-top:1rem;font-size:0.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Prayer Request</div>`;
+    if (e.isPrivate) {
+      html += `<div class="prayer-text-box" style="color:var(--red)">🔒 This request is marked private.</div>`;
+    } else {
+      html += `<div class="prayer-text-box">${e.prayer}</div>`;
+    }
+  }
+
+  document.getElementById('modal-body').innerHTML = html;
+  document.getElementById('detail-modal').classList.add('open');
+}
+
+function closeModal(e) {
+  if (e.target.id === 'detail-modal') document.getElementById('detail-modal').classList.remove('open');
+}
+
+// ── EXPORT CSV ──
+function exportCSV() {
+  const data = getData();
+  if (!data.length) { alert('No data to export'); return; }
+  const headers = ['#','Name','DOB','Anniversary','Mobile','Email','Address','PIN','Spouse Name','Spouse DOB','Child1','Child1 DOB','Child2','Child2 DOB','Child3','Child3 DOB','Prayer Request','Private','Submitted'];
+  const rows = data.map((e, i) => [
+    i+1, e.name, e.dob||'', e.dom||'', e.mobile||'', e.email||'', (e.address||'').replace(/,/g,' '), e.pin||'',
+    e.spouse?.name||'', e.spouse?.dob||'',
+    e.children?.[0]?.name||'', e.children?.[0]?.dob||'',
+    e.children?.[1]?.name||'', e.children?.[1]?.dob||'',
+    e.children?.[2]?.name||'', e.children?.[2]?.dob||'',
+    (e.isPrivate ? '[PRIVATE]' : (e.prayer||'').replace(/,/g,' ')),
+    e.isPrivate ? 'Yes' : 'No',
+    new Date(e.submittedAt).toLocaleDateString('en-IN')
+  ].map(v => `"${v}"`).join(','));
+
+  const csv = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `JPM_PrayerRequests_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── SEED DEMO DATA ──
+function seedDemo() {
+  if (getData().length > 0) return;
+  const today = new Date();
+  const demo = [
+    {
+      id: 1001, submittedAt: new Date(Date.now() - 86400000*2).toISOString(),
+      name: 'రాజు కుమార్', dob: `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`,
+      dom: '2010-06-15', mobile: '9876543210', email: 'raju@example.com',
+      address: 'సీత రామ నగర్, కాకినాడ', pin: '533003',
+      spouse: { name: 'లక్ష్మి కుమారి', dob: '1985-08-20', mobile: '9876543211', email: '' },
+      children: [
+        { name: 'రవి కుమార్', dob: '2010-03-10', mobile: '', email: '' },
+        { name: '', dob: '', mobile: '', email: '' },
+        { name: '', dob: '', mobile: '', email: '' }
+      ],
+      prayer: 'నేను నా కుటుంబ ఆత్మీయంగా దేవుని నామానికి మహిమా కరముగా ఉండాలని ప్రార్థన. మా పిల్లల చదువు బాగా జరగాలని.',
+      isPrivate: false
+    },
+    {
+      id: 1002, submittedAt: new Date(Date.now() - 86400000*5).toISOString(),
+      name: 'సుష్మ రెడ్డి', dob: '1990-03-25', dom: `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`,
+      mobile: '9988776655', email: 'sushma@example.com',
+      address: 'రామచంద్రపురం, కాకినాడ', pin: '533101',
+      spouse: { name: 'వేణు రెడ్డి', dob: '1988-11-05', mobile: '9988776600', email: '' },
+      children: [
+        { name: 'అనుష', dob: '2015-07-12', mobile: '', email: '' },
+        { name: '', dob: '', mobile: '', email: '' },
+        { name: '', dob: '', mobile: '', email: '' }
+      ],
+      prayer: 'నా భర్త ఉద్యోగం మంచి అవుతుందని ప్రభువు దీవించాలని.',
+      isPrivate: true
+    },
+    {
+      id: 1003, submittedAt: new Date(Date.now() - 86400000*1).toISOString(),
+      name: 'ప్రసాద్ బాబు', dob: '1975-04-02', dom: '2002-11-20',
+      mobile: '9123456789', email: '',
+      address: 'గుడారిగుంట, కాకినాడ', pin: '533003',
+      spouse: { name: '', dob: '', mobile: '', email: '' },
+      children: [
+        { name: '', dob: '', mobile: '', email: '' },
+        { name: '', dob: '', mobile: '', email: '' },
+        { name: '', dob: '', mobile: '', email: '' }
+      ],
+      prayer: 'ఆరోగ్యం కోసం ప్రార్థన. దేవుడు నన్ను సంపూర్ణంగా స్వస్థపరుచుగాక.',
+      isPrivate: false
+    }
+  ];
+  saveData(demo);
+}
+
+seedDemo();
+
+// ── SECRET KEY COMBO: Ctrl + Shift + P ──
+const _combo = { ctrl: false, shift: false };
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Control') _combo.ctrl = true;
+  if (e.key === 'Shift') _combo.shift = true;
+  if (_combo.ctrl && _combo.shift && e.key === 'P') {
+    e.preventDefault();
+    const dashTab = document.getElementById('dash-tab');
+    dashTab.style.display = 'inline-block';
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('dash-page').classList.add('active');
+    dashTab.classList.add('active');
+    refreshDashboard();
+    // show toast
+    const t = document.getElementById('unlock-toast');
+    t.style.opacity = '1'; t.style.transform = 'translateY(0)';
+    setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(20px)'; }, 3000);
+  }
+});
+document.addEventListener('keyup', function(e) {
+  if (e.key === 'Control') _combo.ctrl = false;
+  if (e.key === 'Shift') _combo.shift = false;
+});
+</script>
+
+<div id="unlock-toast" style="position:fixed;bottom:2rem;right:2rem;z-index:9999;background:linear-gradient(135deg,#27ae60,#2ecc71);color:white;padding:0.85rem 1.4rem;border-radius:8px;font-family:'Lora',serif;font-size:0.9rem;font-weight:600;box-shadow:0 6px 24px rgba(39,174,96,0.5);opacity:0;transform:translateY(20px);transition:all 0.4s ease;pointer-events:none;">🔓 Pastor Dashboard Unlocked</div>
+
+</body>
+</html>
