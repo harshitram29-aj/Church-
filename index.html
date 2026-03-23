@@ -454,7 +454,7 @@
 
 <!-- NAV -->
 <nav class="nav">
-  <span class="nav-cross">✝</span>
+  <span class="nav-cross" id="nav-cross" style="cursor:pointer;user-select:none;padding:0.5rem;">✝</span>
   <div class="nav-brand">
     <span class="tel">జీవాధిపతి ప్రార్థన మందిరం</span>
     <span class="eng">The Prince of Life Ministries</span>
@@ -734,7 +734,7 @@ function getData() {
 function saveData(d) { localStorage.setItem(KEY, JSON.stringify(d)); }
 
 // ── GOOGLE SHEETS ENDPOINT ──
-const SHEET_URL = 'https://script.google.com/macros/s/AKfycbw3xILOxHlmn-gdc1Exi1lFv4kwFf0YLmgYjs30XOYV2XRYltKu0i4p0XkFCz-qGawG/exec';
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbz_niZzN0-sa20TKUqzkq2ouzgi9y86a1n2KwjfVz1IUd-XUdAEFBGz9ktU_JTDJGIh/exec';
 
 // ── FORM SUBMIT ──
 async function submitForm() {
@@ -789,13 +789,14 @@ async function submitForm() {
   data.push(localEntry);
   saveData(data);
 
-  // Send to Google Sheets
+  // Send to Google Sheets via FormData (works with no-cors)
   try {
+    const form = new FormData();
+    form.append('data', JSON.stringify(entry));
     await fetch(SHEET_URL, {
       method: 'POST',
       mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(entry)
+      body: form
     });
   } catch(err) {
     console.warn('Sheet sync error:', err);
@@ -828,8 +829,24 @@ function showPage(id, btn) {
 }
 
 // ── DASHBOARD ──
-function refreshDashboard() {
-  const data = getData();
+async function refreshDashboard() {
+  // Show loading
+  document.getElementById('table-body').innerHTML = '<tr><td colspan="9"><div class="empty-state"><span class="icon">⏳</span>Loading submissions from server...</div></td></tr>';
+
+  // Fetch from Google Sheets
+  let data = getData(); // local fallback
+  try {
+    const res = await fetch(SHEET_URL + '?action=getAll', { method: 'GET', mode: 'cors' });
+    const json = await res.json();
+    if (json.data && json.data.length > 0) {
+      data = json.data;
+      saveData(data); // cache locally
+    }
+  } catch(err) {
+    console.warn('Could not fetch from server, using local data:', err);
+  }
+
+  window._dashData = data;
   const today = new Date();
   const todayMD = `${today.getMonth()+1}-${today.getDate()}`;
 
@@ -911,7 +928,7 @@ function refreshDashboard() {
 }
 
 function renderTable() {
-  const data = getData();
+  const data = window._dashData || getData();
   const search = document.getElementById('search-input').value.toLowerCase();
   const privacy = document.getElementById('filter-privacy').value;
   const bdayMonth = document.getElementById('filter-bday-month').value;
@@ -968,12 +985,14 @@ function clearFilters() {
 
 function deleteEntry(id) {
   if (!confirm('Delete this prayer request?')) return;
-  saveData(getData().filter(e => e.id !== id));
-  refreshDashboard();
+  const updated = (window._dashData || getData()).filter(e => e.id !== id);
+  window._dashData = updated;
+  saveData(updated);
+  renderTable();
 }
 
 function viewDetail(id) {
-  const e = getData().find(x => x.id === id);
+  const e = (window._dashData || getData()).find(x => x.id === id);
   if (!e) return;
   document.getElementById('modal-title').textContent = `✝ ${e.name}`;
   const rows = [
@@ -1022,7 +1041,7 @@ function closeModal(e) {
 
 // ── EXPORT CSV ──
 function exportCSV() {
-  const data = getData();
+  const data = window._dashData || getData();
   if (!data.length) { alert('No data to export'); return; }
   const headers = ['#','Name','DOB','Anniversary','Mobile','Email','Address','PIN','Spouse Name','Spouse DOB','Child1','Child1 DOB','Child2','Child2 DOB','Child3','Child3 DOB','Prayer Request','Private','Submitted'];
   const rows = data.map((e, i) => [
@@ -1097,32 +1116,57 @@ function seedDemo() {
   saveData(demo);
 }
 
-seedDemo();
+// seedDemo disabled - using real Google Sheets data
+// seedDemo();
 
-// ── SECRET KEY COMBO: Ctrl + Shift + P ──
+// ── SECRET ACCESS: Ctrl+Shift+P on laptop, 5 taps on cross icon on mobile ──
 const _combo = { ctrl: false, shift: false };
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Control') _combo.ctrl = true;
   if (e.key === 'Shift') _combo.shift = true;
   if (_combo.ctrl && _combo.shift && e.key === 'P') {
     e.preventDefault();
-    const dashTab = document.getElementById('dash-tab');
-    dashTab.style.display = 'inline-block';
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-    document.getElementById('dash-page').classList.add('active');
-    dashTab.classList.add('active');
-    refreshDashboard();
-    // show toast
-    const t = document.getElementById('unlock-toast');
-    t.style.opacity = '1'; t.style.transform = 'translateY(0)';
-    setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(20px)'; }, 3000);
+    unlockDashboard();
   }
 });
 document.addEventListener('keyup', function(e) {
   if (e.key === 'Control') _combo.ctrl = false;
   if (e.key === 'Shift') _combo.shift = false;
 });
+
+// ── MOBILE: Tap the ✝ cross icon 5 times quickly ──
+let _tapCount = 0;
+let _tapTimer = null;
+document.getElementById('nav-cross').addEventListener('click', function() {
+  _tapCount++;
+  clearTimeout(_tapTimer);
+  // show tap feedback
+  const cross = document.getElementById('nav-cross');
+  cross.style.color = _tapCount >= 3 ? '#ff0' : 'var(--gold)';
+  if (_tapCount >= 5) {
+    _tapCount = 0;
+    cross.style.color = 'var(--gold)';
+    unlockDashboard();
+  } else {
+    _tapTimer = setTimeout(() => {
+      _tapCount = 0;
+      cross.style.color = 'var(--gold)';
+    }, 2000);
+  }
+});
+
+function unlockDashboard() {
+  const dashTab = document.getElementById('dash-tab');
+  dashTab.style.display = 'inline-block';
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('dash-page').classList.add('active');
+  dashTab.classList.add('active');
+  refreshDashboard();
+  const t = document.getElementById('unlock-toast');
+  t.style.opacity = '1'; t.style.transform = 'translateY(0)';
+  setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(20px)'; }, 3000);
+}
 </script>
 
 <div id="unlock-toast" style="position:fixed;bottom:2rem;right:2rem;z-index:9999;background:linear-gradient(135deg,#27ae60,#2ecc71);color:white;padding:0.85rem 1.4rem;border-radius:8px;font-family:'Lora',serif;font-size:0.9rem;font-weight:600;box-shadow:0 6px 24px rgba(39,174,96,0.5);opacity:0;transform:translateY(20px);transition:all 0.4s ease;pointer-events:none;">🔓 Pastor Dashboard Unlocked</div>
