@@ -267,6 +267,24 @@ tbody td strong{font-family:'Cormorant Garamond',serif;font-size:.88rem;font-wei
 .prayer-box{background:rgba(42,21,69,.06);border:1px solid rgba(90,48,128,.2);border-radius:6px;padding:.8rem 1rem;font-style:italic;color:var(--purple2);line-height:1.8;margin-top:.4rem;font-size:.9rem;font-family:'Cormorant Garamond',serif}
 .msec{font-family:'Cinzel',serif;font-size:.7rem;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:1px;border-top:1px solid var(--border);padding-top:.8rem;margin:.8rem 0;display:flex;align-items:center;gap:.5rem}
 .msec::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
+/* PIN PAD */
+.pin-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:800;align-items:center;justify-content:center;padding:1rem}
+.pin-overlay.open{display:flex}
+.pin-box{background:linear-gradient(160deg,var(--deep2),var(--purple));border:2px solid var(--gold);border-radius:20px;padding:2rem 1.5rem;text-align:center;width:100%;max-width:320px;box-shadow:0 20px 60px rgba(0,0,0,.8),0 0 40px rgba(212,168,67,.15);animation:popIn .4s cubic-bezier(.34,1.56,.64,1)}
+.pin-box h3{font-family:'Cinzel',serif;color:var(--gold);font-size:1rem;letter-spacing:2px;margin-bottom:.3rem}
+.pin-box p{font-size:.78rem;color:var(--muted);margin-bottom:1.2rem;font-style:italic}
+.pin-display{font-family:'Inter',sans-serif;font-size:2rem;letter-spacing:.6rem;color:var(--gold2);background:rgba(0,0,0,.3);border:1px solid var(--gold3);border-radius:8px;padding:.6rem 1rem;min-height:52px;margin-bottom:.5rem}
+.pin-error{font-size:.78rem;color:#ff7777;min-height:1.2rem;margin-bottom:.8rem;font-family:'Inter',sans-serif}
+.pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin-bottom:.6rem}
+.pin-btn{padding:.9rem;background:linear-gradient(145deg,rgba(212,168,67,.15),rgba(212,168,67,.08));border:1px solid var(--gold3);border-radius:10px;color:var(--gold2);font-family:'Cinzel',serif;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:1px}
+.pin-btn:hover{background:linear-gradient(145deg,rgba(212,168,67,.3),rgba(212,168,67,.15));border-color:var(--gold);transform:scale(1.05)}
+.pin-btn:active{transform:scale(.95)}
+.pin-btn.wide{grid-column:span 2}
+.pin-action-row{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:.3rem}
+.pin-submit{padding:.9rem;background:linear-gradient(135deg,var(--gold3),var(--gold));color:var(--deep);border:none;border-radius:10px;font-family:'Cinzel',serif;font-size:.88rem;font-weight:700;cursor:pointer;letter-spacing:1px;transition:all .2s}
+.pin-submit:hover{transform:scale(1.03);box-shadow:0 4px 15px rgba(212,168,67,.4)}
+.pin-cancel{padding:.9rem;background:transparent;color:var(--muted);border:1px solid rgba(255,255,255,.15);border-radius:10px;font-family:'Cinzel',serif;font-size:.82rem;cursor:pointer;transition:all .2s}
+.pin-cancel:hover{background:rgba(255,255,255,.08);color:var(--gold)}
 #toast{position:fixed;bottom:2rem;right:2rem;z-index:9999;background:linear-gradient(135deg,#27ae60,#2ecc71);color:white;padding:.85rem 1.4rem;border-radius:8px;font-family:'Cinzel',serif;font-size:.82rem;font-weight:600;box-shadow:0 6px 24px rgba(39,174,96,.5);opacity:0;transform:translateY(20px);transition:all .4s ease;pointer-events:none;letter-spacing:.5px}
 </style>
 </head>
@@ -427,7 +445,7 @@ tbody td strong{font-family:'Cormorant Garamond',serif;font-size:.88rem;font-wei
         </ul>
         <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);font-size:.82rem;color:var(--muted);font-family:'Inter',sans-serif">
           <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:.8rem">
-            <img src="data:image/jpeg;base64,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" alt="Pastor John Babu" style="width:80px;height:80px;border-radius:50%;border:3px solid var(--gold);object-fit:cover;object-position:50% 15%;box-shadow:0 4px 16px rgba(212,168,67,.4),0 0 0 2px rgba(212,168,67,.15);flex-shrink:0">
+            <img src="data:image/jpeg;base64,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" alt="Pastor John Babu" style="width:80px;height:80px;border-radius:50%;border:3px solid var(--gold);object-fit:cover;object-position:50% 15%;box-shadow:0 4px 16px rgba(212,168,67,.4),0 0 0 2px rgba(212,168,67,.15);flex-shrink:0">
             <div>
               <strong style="font-family:'Cormorant Garamond',serif;font-size:1rem;color:var(--text)">Pastor John Babu</strong><br>
               <span style="font-size:.78rem">WhatsApp: 9030913852</span><br>
@@ -438,7 +456,7 @@ tbody td strong{font-family:'Cormorant Garamond',serif;font-size:.88rem;font-wei
             <a href="https://youtube.com/@BROJOHNBABUMISSIONS" target="_blank" style="display:inline-flex;align-items:center;gap:.4rem;padding:.5rem .95rem;border-radius:20px;text-decoration:none;font-family:'Inter',sans-serif;font-size:.73rem;font-weight:700;transition:all .3s;letter-spacing:.2px;background:#ff0000;color:white;box-shadow:0 3px 10px rgba(255,0,0,.3)">▶ YouTube</a>
             <a href="https://instagram.com/brojohnbabumissions" target="_blank" style="display:inline-flex;align-items:center;gap:.4rem;padding:.5rem .95rem;border-radius:20px;text-decoration:none;font-family:'Inter',sans-serif;font-size:.73rem;font-weight:700;transition:all .3s;letter-spacing:.2px;background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);color:white;box-shadow:0 3px 10px rgba(131,58,180,.3)">📷 Instagram</a>
             <a href="https://facebook.com/share/1Vn2HR4LEU" target="_blank" style="display:inline-flex;align-items:center;gap:.4rem;padding:.5rem .95rem;border-radius:20px;text-decoration:none;font-family:'Inter',sans-serif;font-size:.73rem;font-weight:700;transition:all .3s;letter-spacing:.2px;background:#1877f2;color:white;box-shadow:0 3px 10px rgba(24,119,242,.3)">👍 Facebook</a>
-            <a href="https://www.google.com/maps/place/The+Prince+of+Life+Ministries/@16.9739089,82.2529988,17z" target="_blank" style="display:inline-flex;align-items:center;gap:.4rem;padding:.5rem .95rem;border-radius:20px;text-decoration:none;font-family:'Inter',sans-serif;font-size:.73rem;font-weight:700;transition:all .3s;letter-spacing:.2px;background:linear-gradient(135deg,#34a853,#0f9d58);color:white;box-shadow:0 3px 10px rgba(52,168,83,.3)">📍 Location</a>
+            <a href="https://maps.google.com/?q=16.9739089,82.2529988&ll=16.9739089,82.2529988&z=18" target="_blank" style="display:inline-flex;align-items:center;gap:.4rem;padding:.5rem .95rem;border-radius:20px;text-decoration:none;font-family:'Inter',sans-serif;font-size:.73rem;font-weight:700;transition:all .3s;letter-spacing:.2px;background:linear-gradient(135deg,#34a853,#0f9d58);color:white;box-shadow:0 3px 10px rgba(52,168,83,.3)">📍 Location</a>
           </div>
         </div>
       </div>
@@ -546,7 +564,7 @@ tbody td strong{font-family:'Cormorant Garamond',serif;font-size:.88rem;font-wei
         </ul>
                 <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);font-size:.82rem;color:var(--muted);font-family:'Inter',sans-serif">
           <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:.8rem">
-            <img src="data:image/jpeg;base64,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" alt="Pastor John Babu" style="width:80px;height:80px;border-radius:50%;border:3px solid var(--gold);object-fit:cover;object-position:50% 10%;box-shadow:0 4px 16px rgba(212,168,67,.4);flex-shrink:0">
+            <img src="data:image/jpeg;base64,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" alt="Pastor John Babu" style="width:80px;height:80px;border-radius:50%;border:3px solid var(--gold);object-fit:cover;object-position:50% 10%;box-shadow:0 4px 16px rgba(212,168,67,.4);flex-shrink:0">
             <div style="flex:1;min-width:150px">
               <strong style="font-family:'Cormorant Garamond',serif;font-size:1rem;color:var(--text)">Pastor John Babu</strong><br>
               <span>WhatsApp: 9030913852</span><br>
@@ -557,7 +575,7 @@ tbody td strong{font-family:'Cormorant Garamond',serif;font-size:.88rem;font-wei
             <a href="https://youtube.com/@BROJOHNBABUMISSIONS" target="_blank" style="display:inline-flex;align-items:center;gap:.4rem;padding:.5rem .9rem;border-radius:20px;text-decoration:none;font-family:'Inter',sans-serif;font-size:.73rem;font-weight:700;transition:all .3s;background:#ff0000;color:white;box-shadow:0 3px 10px rgba(255,0,0,.3)">▶ YouTube</a>
             <a href="https://instagram.com/brojohnbabumissions" target="_blank" style="display:inline-flex;align-items:center;gap:.4rem;padding:.5rem .9rem;border-radius:20px;text-decoration:none;font-family:'Inter',sans-serif;font-size:.73rem;font-weight:700;transition:all .3s;background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);color:white;box-shadow:0 3px 10px rgba(131,58,180,.3)">📷 Instagram</a>
             <a href="https://facebook.com/share/1Vn2HR4LEU" target="_blank" style="display:inline-flex;align-items:center;gap:.4rem;padding:.5rem .9rem;border-radius:20px;text-decoration:none;font-family:'Inter',sans-serif;font-size:.73rem;font-weight:700;transition:all .3s;background:#1877f2;color:white;box-shadow:0 3px 10px rgba(24,119,242,.3)">👍 Facebook</a>
-            <a href="https://www.google.com/maps/place/The+Prince+of+Life+Ministries/@16.9739089,82.2529988,17z" target="_blank" style="display:inline-flex;align-items:center;gap:.4rem;padding:.5rem .9rem;border-radius:20px;text-decoration:none;font-family:'Inter',sans-serif;font-size:.73rem;font-weight:700;transition:all .3s;background:linear-gradient(135deg,#34a853,#0f9d58);color:white;box-shadow:0 3px 10px rgba(52,168,83,.3)">📍 Location</a>
+            <a href="https://maps.google.com/?q=16.9739089,82.2529988&ll=16.9739089,82.2529988&z=18" target="_blank" style="display:inline-flex;align-items:center;gap:.4rem;padding:.5rem .9rem;border-radius:20px;text-decoration:none;font-family:'Inter',sans-serif;font-size:.73rem;font-weight:700;transition:all .3s;background:linear-gradient(135deg,#34a853,#0f9d58);color:white;box-shadow:0 3px 10px rgba(52,168,83,.3)">📍 Location</a>
           </div>
         </div>
       </div>
@@ -611,7 +629,7 @@ tbody td strong{font-family:'Cormorant Garamond',serif;font-size:.88rem;font-wei
         </ul>
                 <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);font-size:.82rem;color:var(--muted);font-family:'Inter',sans-serif">
           <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:.8rem">
-            <img src="data:image/jpeg;base64,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" alt="Pastor John Babu" style="width:80px;height:80px;border-radius:50%;border:3px solid var(--gold);object-fit:cover;object-position:50% 10%;box-shadow:0 4px 16px rgba(212,168,67,.4);flex-shrink:0">
+            <img src="data:image/jpeg;base64,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" alt="Pastor John Babu" style="width:80px;height:80px;border-radius:50%;border:3px solid var(--gold);object-fit:cover;object-position:50% 10%;box-shadow:0 4px 16px rgba(212,168,67,.4);flex-shrink:0">
             <div style="flex:1;min-width:150px">
               <strong style="font-family:'Cormorant Garamond',serif;font-size:1rem;color:var(--text)">Pastor John Babu</strong><br>
               <span>WhatsApp: 9030913852</span><br>
@@ -622,7 +640,7 @@ tbody td strong{font-family:'Cormorant Garamond',serif;font-size:.88rem;font-wei
             <a href="https://youtube.com/@BROJOHNBABUMISSIONS" target="_blank" style="display:inline-flex;align-items:center;gap:.4rem;padding:.5rem .9rem;border-radius:20px;text-decoration:none;font-family:'Inter',sans-serif;font-size:.73rem;font-weight:700;transition:all .3s;background:#ff0000;color:white;box-shadow:0 3px 10px rgba(255,0,0,.3)">▶ YouTube</a>
             <a href="https://instagram.com/brojohnbabumissions" target="_blank" style="display:inline-flex;align-items:center;gap:.4rem;padding:.5rem .9rem;border-radius:20px;text-decoration:none;font-family:'Inter',sans-serif;font-size:.73rem;font-weight:700;transition:all .3s;background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);color:white;box-shadow:0 3px 10px rgba(131,58,180,.3)">📷 Instagram</a>
             <a href="https://facebook.com/share/1Vn2HR4LEU" target="_blank" style="display:inline-flex;align-items:center;gap:.4rem;padding:.5rem .9rem;border-radius:20px;text-decoration:none;font-family:'Inter',sans-serif;font-size:.73rem;font-weight:700;transition:all .3s;background:#1877f2;color:white;box-shadow:0 3px 10px rgba(24,119,242,.3)">👍 Facebook</a>
-            <a href="https://www.google.com/maps/place/The+Prince+of+Life+Ministries/@16.9739089,82.2529988,17z" target="_blank" style="display:inline-flex;align-items:center;gap:.4rem;padding:.5rem .9rem;border-radius:20px;text-decoration:none;font-family:'Inter',sans-serif;font-size:.73rem;font-weight:700;transition:all .3s;background:linear-gradient(135deg,#34a853,#0f9d58);color:white;box-shadow:0 3px 10px rgba(52,168,83,.3)">📍 Location</a>
+            <a href="https://maps.google.com/?q=16.9739089,82.2529988&ll=16.9739089,82.2529988&z=18" target="_blank" style="display:inline-flex;align-items:center;gap:.4rem;padding:.5rem .9rem;border-radius:20px;text-decoration:none;font-family:'Inter',sans-serif;font-size:.73rem;font-weight:700;transition:all .3s;background:linear-gradient(135deg,#34a853,#0f9d58);color:white;box-shadow:0 3px 10px rgba(52,168,83,.3)">📍 Location</a>
           </div>
         </div>
       </div>
@@ -714,6 +732,34 @@ tbody td strong{font-family:'Cormorant Garamond',serif;font-size:.88rem;font-wei
   </div>
 </div>
 <div id="toast">🔓 Pastor Dashboard Unlocked</div>
+
+<!-- PIN PAD -->
+<div class="pin-overlay" id="pin-overlay">
+  <div class="pin-box">
+    <h3>✝ Pastor Access</h3>
+    <p>Enter your PIN to open the dashboard</p>
+    <div class="pin-display" id="pin-display"></div>
+    <div class="pin-error" id="pin-error"></div>
+    <div class="pin-grid">
+      <button class="pin-btn" onclick="pinPress('1')">1</button>
+      <button class="pin-btn" onclick="pinPress('2')">2</button>
+      <button class="pin-btn" onclick="pinPress('3')">3</button>
+      <button class="pin-btn" onclick="pinPress('4')">4</button>
+      <button class="pin-btn" onclick="pinPress('5')">5</button>
+      <button class="pin-btn" onclick="pinPress('6')">6</button>
+      <button class="pin-btn" onclick="pinPress('7')">7</button>
+      <button class="pin-btn" onclick="pinPress('8')">8</button>
+      <button class="pin-btn" onclick="pinPress('9')">9</button>
+      <button class="pin-btn" onclick="pinPress('del')">⌫</button>
+      <button class="pin-btn" onclick="pinPress('0')">0</button>
+      <button class="pin-btn" onclick="pinPress('clr')">C</button>
+    </div>
+    <div class="pin-action-row">
+      <button class="pin-cancel" onclick="pinCancel()">Cancel</button>
+      <button class="pin-submit" onclick="pinSubmit()">✦ Enter</button>
+    </div>
+  </div>
+</div>
 
 <script>
 const SHEET_URL='https://script.google.com/macros/s/AKfycbyVUhcYsVyKQqIXQnVWrKU3bDYDwtr1gvIDzw4syVlI_ZstPt2FbkeRvnGwwtvgQxOo/exec';
@@ -979,19 +1025,66 @@ function switchDashTab(panelId,btn){
 }
 
 // ── MEMBER LOOKUP ──
-function lookupMember(){
+async function lookupMember(){
   const num=document.getElementById('lookup-number').value.trim();
   if(!num||num.length<5){alert('Please enter your WhatsApp number');return}
-  const mem=getMembers();
-  const matches=Object.entries(mem).filter(([,d])=>d.mobile===num||d['parents-mob']===num||d['sp-mob']===num);
   const listEl=document.getElementById('name-result-list');
   const resEl=document.getElementById('name-results');
+  const btn=document.querySelector('.lookup-btn');
+  btn.textContent='Searching...';btn.disabled=true;
+
+  // Step 1: check local member store
+  const mem=getMembers();
+  let localMatches=Object.entries(mem).filter(([,d])=>d.mobile===num||d['parents-mob']===num||d['sp-mob']===num);
+
+  // Step 2: ALSO search Google Sheets data for this number
+  // Fetch fresh from sheets
+  let sheetsMatches=[];
+  try{
+    const res=await fetch(SHEET_URL+'?action=getAll',{method:'GET',mode:'cors'});
+    const json=await res.json();
+    if(json.data&&json.data.length>0){
+      // Save to local cache and member store
+      saveData(json.data);
+      // Find matching entries by mobile number
+      const found=json.data.filter(e=>String(e.mobile||'')==num||String(e.parentsMobile||'')==num||String(e.spouseMobile||'')==num);
+      found.forEach(e=>{
+        // Rebuild member store entry from sheets data
+        if(e.name&&!mem[e.name]){
+          mem[e.name]={
+            mobile:e.mobile||'',email:e.email||'',address:e.address||'',pin:e.pin||'',
+            marital:e.marital||'',dob:e.dob||'',dom:e.dom||'',referred:e.referred||'',
+            'sp-name':e.spouseName||'','sp-dob':e.spouseDob||'','sp-mob':e.spouseMobile||'','sp-email':'',
+            'father-name':e.fatherName||'','father-dob':e.fatherDob||'',
+            'mother-name':e.motherName||'','mother-dob':e.motherDob||'','parents-mob':e.parentsMobile||'',
+            children:[
+              {name:e.child1Name||'',dob:e.child1Dob||'',mobile:e.child1Mobile||''},
+              {name:e.child2Name||'',dob:e.child2Dob||'',mobile:e.child2Mobile||''},
+              {name:e.child3Name||'',dob:e.child3Dob||'',mobile:e.child3Mobile||''},
+              {name:e.child4Name||'',dob:e.child4Dob||'',mobile:e.child4Mobile||''},
+              {name:e.child5Name||'',dob:e.child5Dob||'',mobile:e.child5Mobile||''},
+            ]
+          };
+          sheetsMatches.push([e.name, mem[e.name]]);
+        }
+      });
+      // Save rebuilt member data
+      if(sheetsMatches.length>0) saveMembers(mem);
+    }
+  }catch(err){console.warn('Sheets lookup failed:',err)}
+
+  btn.textContent='Search ✦';btn.disabled=false;
+
+  // Merge local + sheets matches, deduplicate by name
+  const allNames=new Set(localMatches.map(([n])=>n));
+  sheetsMatches.forEach(([n,d])=>{if(!allNames.has(n)){localMatches.push([n,d]);allNames.add(n)}});
+
   resEl.style.display='block';
-  if(!matches.length){
-    listEl.innerHTML=`<div class="not-found-msg">❌ No record found. Please use <strong>New Member</strong> instead.</div>`;
+  if(!localMatches.length){
+    listEl.innerHTML=`<div class="not-found-msg">❌ No record found for this number.<br><span style="font-size:.8rem;color:rgba(255,150,150,.7)">If you filled the form before on another device, please use <strong>New Member</strong> to register again.</span></div>`;
     return;
   }
-  listEl.innerHTML=matches.map(([name])=>`
+  listEl.innerHTML=localMatches.map(([name])=>`
     <div class="name-result-item" onclick="selectReturning('${name.replace(/'/g,"\\'")}')">
       <span class="nm">🙏 ${name}</span><span class="sel-arrow">→</span>
     </div>`).join('');
@@ -1345,17 +1438,57 @@ function exportCSV(){
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`POLM_${new Date().toISOString().slice(0,10)}.csv`;a.click();
 }
 
-// ── SECRET ACCESS ── Ctrl+Shift+P laptop | 5 taps cross mobile
+// ── SECRET ACCESS ── Ctrl+Shift+P laptop | 5 taps cross mobile | PIN pad
 const _c={ctrl:false,shift:false};
-document.addEventListener('keydown',e=>{if(e.key==='Control')_c.ctrl=true;if(e.key==='Shift')_c.shift=true;if(_c.ctrl&&_c.shift&&e.key==='P'){e.preventDefault();unlock()}});
+document.addEventListener('keydown',e=>{if(e.key==='Control')_c.ctrl=true;if(e.key==='Shift')_c.shift=true;if(_c.ctrl&&_c.shift&&e.key==='P'){e.preventDefault();showPinPad()}});
 document.addEventListener('keyup',e=>{if(e.key==='Control')_c.ctrl=false;if(e.key==='Shift')_c.shift=false});
 let _tc=0,_tapTimer=null;
 document.getElementById('nav-cross').addEventListener('click',function(){
   _tc++;clearTimeout(_tapTimer);
   this.style.color=_tc>=3?'#ffffff':'var(--gold)';
   this.style.textShadow=_tc>=3?'0 0 20px #fff,0 0 40px #fff':'';
-  if(_tc>=5){_tc=0;this.style.color='var(--gold)';this.style.textShadow='';unlock();}
+  if(_tc>=5){_tc=0;this.style.color='var(--gold)';this.style.textShadow='';showPinPad();}
   else{_tapTimer=setTimeout(()=>{_tc=0;const nc=document.getElementById('nav-cross');nc.style.color='var(--gold)';nc.style.textShadow=''},2000)}
+});
+
+// PIN PAD
+const DASHBOARD_PIN = '1234'; // ← Pastor: change this to your secret PIN
+let _pinEntry = '';
+function showPinPad(){
+  document.getElementById('pin-overlay').classList.add('open');
+  _pinEntry='';
+  document.getElementById('pin-display').textContent='';
+  document.getElementById('pin-error').textContent='';
+}
+function pinPress(val){
+  if(val==='del'){_pinEntry=_pinEntry.slice(0,-1);}
+  else if(val==='clr'){_pinEntry='';}
+  else{if(_pinEntry.length<6)_pinEntry+=val;}
+  document.getElementById('pin-display').textContent='●'.repeat(_pinEntry.length);
+  document.getElementById('pin-error').textContent='';
+}
+function pinSubmit(){
+  if(_pinEntry===DASHBOARD_PIN){
+    document.getElementById('pin-overlay').classList.remove('open');
+    unlock();
+  } else {
+    document.getElementById('pin-error').textContent='❌ Wrong PIN. Try again.';
+    _pinEntry='';
+    document.getElementById('pin-display').textContent='';
+  }
+}
+function pinCancel(){
+  document.getElementById('pin-overlay').classList.remove('open');
+  _pinEntry='';
+}
+// Allow typing PIN via keyboard when pad is open
+document.addEventListener('keydown',function(e){
+  const overlay=document.getElementById('pin-overlay');
+  if(!overlay.classList.contains('open'))return;
+  if(e.key>='0'&&e.key<='9')pinPress(e.key);
+  else if(e.key==='Backspace')pinPress('del');
+  else if(e.key==='Enter')pinSubmit();
+  else if(e.key==='Escape')pinCancel();
 });
 function unlock(){
   document.getElementById('dash-tab').style.display='inline-block';
